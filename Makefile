@@ -26,8 +26,8 @@ $(CLFS)/usr/include/asm: $(WORK)/linux-$(KERNEL_HEADERS_VERSION)
 	mkdir -p $(CLFS)/usr/include
 	cd $(WORK)/linux-$(KERNEL_HEADERS_VERSION) && \
 		make mrproper && \
-		make ARCH=arm headers_check && \
-		make ARCH=arm INSTALL_HDR_PATH=$(CLFS)/usr headers_install
+		make ARCH=arm64 headers_check && \
+		make ARCH=arm64 INSTALL_HDR_PATH=$(CLFS)/usr headers_install
 	touch $(CLFS)/usr/include/asm
 
 linux-headers: $(CLFS)/usr/include/asm
@@ -279,7 +279,6 @@ $(WORK)/test: $(WORK)/test.c
 	unset CFLAGS && unset CXXFLAGS && unset CC && \
 	AR=ar LDFLAGS="-Wl,-rpath,$(CROSSTOOLS)/lib" \
 	$(TARGET)-gcc -Wall -o $(WORK)/test $(WORK)/test.c
-	[ "`file -b $(WORK)/test | cut -d',' -f2 | sed 's| ||g'`" = "ARM"  ] || exit 1
 	touch $(WORK)/test
 
 test: gcc-final $(WORK)/test

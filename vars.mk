@@ -3,7 +3,7 @@
 #
 
 HOST = $(shell echo $$MACHTYPE | sed "s/$$(echo $$MACHTYPE | cut -d- -f2)/cross/")
-TARGET = arm-crux-linux-gnueabihf
+TARGET = aarch64-crux-linux-gnueabi
 
 TOPDIR  = $(shell pwd)
 CLFS = $(TOPDIR)/clfs
@@ -17,10 +17,6 @@ LIBMPC_VERSION = 1.0.3
 BINUTILS_VERSION = 2.25.1
 GCC_VERSION = 5.2.0
 GLIBC_VERSION = 2.22
-
-ABI = aapcs-linux
-MODE = arm
-FLOAT = hard
 
 # Make jobs
 MJ=-j2
