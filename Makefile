@@ -184,7 +184,6 @@ $(CROSSTOOLS)/lib/gcc: $(WORK)/build-gcc-static $(WORK)/gcc-$(GCC_VERSION)
 		--disable-libgomp --disable-libmudflap --disable-libssp \
 		--with-mpfr=$(CROSSTOOLS) --with-gmp=$(CROSSTOOLS) --with-mpc=$(CROSSTOOLS) \
 		--disable-shared --disable-threads --enable-languages=c --disable-libquadmath \
-		--with-abi=$(ABI) --with-mode=$(MODE) --with-float=$(FLOAT) && \
 		make $(MJ) all-gcc all-target-libgcc && make install-gcc install-target-libgcc || exit 1
 	touch $(CROSSTOOLS)/lib/gcc
 
@@ -209,7 +208,7 @@ $(WORK)/build-glibc: $(WORK)/glibc-$(GLIBC_VERSION)
 	mkdir -p $(WORK)/build-glibc
 	touch $(WORK)/build-glibc
 	
-$(CLFS)/usr/lib/libc.so: $(WORK)/build-glibc $(WORK)/glibc-$(GLIBC_VERSION)
+$(CLFS)/usr/lib64/libc.so: $(WORK)/build-glibc $(WORK)/glibc-$(GLIBC_VERSION)
 	cd $(WORK)/build-glibc && \
 		export PATH=$(CROSSTOOLS)/bin:$$PATH && \
 		echo "libc_cv_forced_unwind=yes" > config.cache && \
@@ -218,14 +217,14 @@ $(CLFS)/usr/lib/libc.so: $(WORK)/build-glibc $(WORK)/glibc-$(GLIBC_VERSION)
 		BUILD_CC="gcc" CC="$(TARGET)-gcc" AR="$(TARGET)-ar" \
 		RANLIB="$(TARGET)-ranlib" \
 		$(WORK)/glibc-$(GLIBC_VERSION)/configure --prefix=/usr \
-		--libexecdir=/usr/lib/glibc --host=$(TARGET) --build=$(HOST) \
-		--disable-profile --enable-add-ons --with-tls --enable-kernel=2.6.0 \
+		--libexecdir=/usr/lib --host=$(TARGET) --build=$(HOST) \
+		--enable-multi-arch --disable-profile --enable-add-ons --with-tls --enable-kernel=2.6.0 \
 		--with-__thread --with-binutils=$(CROSSTOOLS)/bin --with-fp=yes --enable-obsolete-rpc \
 		--with-headers=$(CLFS)/usr/include --cache-file=config.cache && \
-		make $(MJ) && make install || exit 1
-	touch $(CLFS)/usr/lib/libc.so
+		make $(MJ) && make install install_root=${CLFS} || exit 1
+	touch $(CLFS)/usr/lib64/libc.so
 
-glibc: binutils gcc-static $(CLFS)/usr/lib/libc.so
+glibc: binutils gcc-static $(CLFS)/usr/lib64/libc.so
 
 glibc-clean:
 	rm -vrf $(WORK)/build-glibc $(WORK)/glibc-$(GLIBC_VERSION)
@@ -247,13 +246,15 @@ $(CLFS)/lib/gcc: $(WORK)/build-gcc-final $(WORK)/gcc-$(GCC_VERSION)
 		$(WORK)/gcc-$(GCC_VERSION)/configure --prefix=$(CROSSTOOLS) \
 		--build=$(HOST) --host=$(HOST) --target=$(TARGET) \
 		--with-headers=$(CLFS)/usr/include --enable-shared  \
-		--disable-multilib --with-sysroot=$(CLFS) --disable-nls \
+		--disable-multilib  --with-sysroot=$(CLFS) --disable-nls \
 		--enable-languages=c,c++ --enable-__cxa_atexit \
-		--enable-threads=posix --disable-libstdcxx-pch --disable-bootstrap --disable-libgomp \
+		--enable-threads=posix --disable-libstdcxx-pch --disable-bootstrap \
+		--disable-libgomp --disable-libssp --disable-libmudflap \
 		--with-mpfr=$(CROSSTOOLS) --with-gmp=$(CROSSTOOLS) --with-mpc=$(CROSSTOOLS) \
-		--with-abi=$(ABI) --with-mode=$(MODE) --with-float=$(FLOAT) && \
 		make $(MJ) AS_FOR_TARGET="$(TARGET)-as" LD_FOR_TARGET="$(TARGET)-ld" && \
 		make install || exit 1
+	cp -va $(WORK)/build-gcc-final/$(TARGET)/libstdc++-v3/src/.libs/libstdc++.so* $(CLFS)/usr/lib
+	cp -va $(WORK)/build-gcc-final/$(TARGET)/libgcc/libgcc_s.so* $(CLFS)/usr/lib
 	touch $(CLFS)/lib/gcc
 		
 gcc-final: libgmp libmpfr glibc $(CLFS)/lib/gcc
