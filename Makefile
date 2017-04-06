@@ -6,12 +6,26 @@ include vars.mk
 
 .PHONY: all clean distclean
 
-all: linux-headers libgmp libmpfr libmpc binutils gcc-static glibc gcc-final setup test
+all: filesystem linux-headers libgmp libmpfr libmpc binutils gcc-static glibc gcc-final setup test
 
 clean: linux-headers-clean libgmp-clean libmpfr-clean libmpc-clean binutils-clean gcc-static-clean glibc-clean gcc-final-clean test-clean
 	rm -rf $(CROSSTOOLS) $(CLFS)
 
-distclean: clean linux-headers-distclean libgmp-distclean libmpfr-distclean libmpc-distclean binutils-distclean gcc-static-distclean glibc-distclean gcc-final-distclean test-distclean
+distclean: clean filesystema-clean linux-headers-distclean libgmp-distclean libmpfr-distclean libmpc-distclean binutils-distclean gcc-static-distclean glibc-distclean gcc-final-distclean test-distclean
+
+
+# Prepare the filessytem
+$(CLFS)/lib:
+	install -d $(CLFS)/lib
+	ln -s lib $(CLFS)/lib64
+	install -d $(CLFS)/usr/lib
+	ln -s lib $(CLFS)/usr/lib64
+	touch $(CLFS)/lib
+
+filesystem: $(CLFS)/lib
+
+filesystem-clean:
+	rm -rf $(CLFS)/lib* $(CLFS)/usr/lib*
 
 
 # LINUX HEADERS
@@ -245,7 +259,7 @@ $(CLFS)/lib/gcc: $(WORK)/build-gcc-final $(WORK)/gcc-$(GCC_VERSION)
 		$(WORK)/gcc-$(GCC_VERSION)/configure --prefix=$(CROSSTOOLS) \
 		--build=$(HOST) --host=$(HOST) --target=$(TARGET) \
 		--with-headers=$(CLFS)/usr/include --enable-shared  \
-		--disable-multilib  --with-sysroot=$(CLFS) --disable-nls \
+		--disable-multilib --with-sysroot=$(CLFS) --disable-nls \
 		--enable-languages=c,c++ --enable-__cxa_atexit \
 		--enable-threads=posix --disable-libstdcxx-pch --disable-bootstrap \
 		--disable-libgomp --disable-libssp --disable-libmudflap \
