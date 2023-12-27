@@ -259,7 +259,7 @@ $(CLFS)/lib/gcc: $(WORK)/build-gcc-final $(WORK)/gcc-$(GCC_VERSION)
 		$(WORK)/gcc-$(GCC_VERSION)/configure --prefix=$(CROSSTOOLS) \
 		--build=$(HOST) --host=$(HOST) --target=$(TARGET) \
 		--with-headers=$(CLFS)/usr/include --enable-shared  \
-		--disable-multilib  --with-sysroot=$(CLFS) --disable-nls \
+		--disable-multilib --with-sysroot=$(CLFS) --disable-nls \
 		--enable-languages=c,c++ --enable-__cxa_atexit \
 		--enable-threads=posix --disable-libstdcxx-pch --disable-bootstrap \
 		--disable-libgomp --disable-libssp --disable-libmudflap \
