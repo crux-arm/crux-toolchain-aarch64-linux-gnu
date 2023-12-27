@@ -11,7 +11,7 @@ all: filesystem linux-headers libgmp libmpfr libmpc binutils gcc-static glibc gc
 clean: linux-headers-clean libgmp-clean libmpfr-clean libmpc-clean binutils-clean gcc-static-clean glibc-clean gcc-final-clean test-clean
 	rm -rf $(CROSSTOOLS) $(CLFS)
 
-distclean: clean filesystema-clean linux-headers-distclean libgmp-distclean libmpfr-distclean libmpc-distclean binutils-distclean gcc-static-distclean glibc-distclean gcc-final-distclean test-distclean
+distclean: clean filesystem-clean linux-headers-distclean libgmp-distclean libmpfr-distclean libmpc-distclean binutils-distclean gcc-static-distclean glibc-distclean gcc-final-distclean test-distclean
 
 
 # Prepare the filessytem
@@ -30,7 +30,7 @@ filesystem-clean:
 
 # LINUX HEADERS
 $(WORK)/linux-$(KERNEL_HEADERS_VERSION).tar.xz:
-	wget -P $(WORK) -c ftp://ftp.kernel.org/pub/linux/kernel/v4.x/linux-$(KERNEL_HEADERS_VERSION).tar.xz
+	wget -P $(WORK) -c https://www.kernel.org/pub/linux/kernel/v4.x/linux-$(KERNEL_HEADERS_VERSION).tar.xz
 
 $(WORK)/linux-$(KERNEL_HEADERS_VERSION): $(WORK)/linux-$(KERNEL_HEADERS_VERSION).tar.xz
 	tar -C $(WORK) -xf $(WORK)/linux-$(KERNEL_HEADERS_VERSION).tar.xz
